@@ -283,3 +283,111 @@ int ONVIF_Capabilities()  //获取设备能力接口
     soap_destroy(soap);
     return retval;
 }
+
+
+int ONVIF_GetProfiles(){
+
+	
+    struct soap *soap;            //soap对象
+    char soap_endpoint[256];    //能力集
+    char *soap_action = NULL;      //接口地址,一一对应,留空会自动赋值
+    struct _trt__GetProfiles media_GetProfiles;  //发送内容
+    struct _trt__GetProfilesResponse media_GetProfilesResponse;  //接收内容
+
+	int retval = 0;
+        
+    struct SOAP_ENV__Header header;
+ 
+    UserInfo_S stUserInfo;
+    memset(&stUserInfo, 0, sizeof(UserInfo_S));
+ 
+    //正确的用户名和错误的密码
+    strcpy(stUserInfo.username, "admin");
+    strcpy(stUserInfo.password, "admin123");
+        
+    //此接口中作验证处理， 如果不需要验证的话，stUserInfo填空即可
+    soap = ONVIF_Initsoap(&header, NULL, NULL, 5, &stUserInfo);
+	
+	/* 1 GetProfiles */
+	memset(soap_endpoint, '\0', 256);
+	sprintf(soap_endpoint, "http://192.168.0.192/onvif/Media");
+
+	
+	do
+	{
+		soap_call___trt__GetProfiles(soap, soap_endpoint, soap_action, &media_GetProfiles, &media_GetProfilesResponse);
+		if (soap->error)
+		{
+			printf("[%s][%d]--->>> soap error: %d, %s, %s\n", __func__, __LINE__, soap->error, *soap_faultcode(soap), *soap_faultstring(soap));
+			retval = soap->error;
+			break;
+		}
+		else
+		{
+			printf("==== [ Media Profiles Response ] ====\n"
+				"> Name  :	%s\n"
+				"> token :	%s\n\n", \
+				media_GetProfilesResponse.Profiles->Name, \
+				media_GetProfilesResponse.Profiles->token );
+				//printf("profile url:%s\n",media_GetProfilesResponse.Profiles[0].VideoSourceConfiguration.);
+		}
+	}while(0);
+}
+
+
+int ONVIF_GetStreamUri(){
+
+	int retval = 0;
+	struct soap *soap; 
+	char soap_endpoint[256];    //能力集
+    char *soap_action = NULL;      //接口地址,一一对应,留空会自动赋值
+	struct _trt__GetStreamUri media_GetStreamUri;
+	struct _trt__GetStreamUriResponse media_GetStreamUriResponse;
+
+	struct SOAP_ENV__Header header;
+
+	char token[64] = {'\0'};
+	strcpy(token,"Profile_1");
+ 
+    UserInfo_S stUserInfo;
+    memset(&stUserInfo, 0, sizeof(UserInfo_S));
+ 
+    //正确的用户名和错误的密码
+    strcpy(stUserInfo.username, "admin");
+    strcpy(stUserInfo.password, "admin123");
+        
+    //此接口中作验证处理， 如果不需要验证的话，stUserInfo填空即可
+    soap = ONVIF_Initsoap(&header, NULL, NULL, 5, &stUserInfo);
+	/* 2 GetStreamUri */
+	memset(soap_endpoint, '\0', 256);
+	sprintf(soap_endpoint, "http://192.168.0.192/onvif/Media");
+	 
+	media_GetStreamUri.StreamSetup = (struct tt__StreamSetup *)soap_malloc(soap, sizeof(struct tt__StreamSetup));
+	media_GetStreamUri.StreamSetup->Transport = (struct tt__Transport *)soap_malloc(soap, sizeof(struct tt__Transport));
+	 
+	media_GetStreamUri.StreamSetup->Stream = (enum tt__StreamType)0;
+	media_GetStreamUri.StreamSetup->Transport->Protocol = (enum tt__TransportProtocol)0;
+	media_GetStreamUri.StreamSetup->Transport->Tunnel = NULL;
+	media_GetStreamUri.StreamSetup->__size = 1;
+	media_GetStreamUri.StreamSetup->__any = NULL;
+	media_GetStreamUri.StreamSetup->__anyAttribute = NULL;
+	media_GetStreamUri.ProfileToken = token;
+	 
+	do
+	{
+		soap_call___trt__GetStreamUri(soap, soap_endpoint, soap_action, &media_GetStreamUri, &media_GetStreamUriResponse);
+		if (soap->error)
+		{
+			printf("[%s][%d]--->>> soap error: %d, %s, %s\n", __func__, __LINE__, soap->error, *soap_faultcode(soap), *soap_faultstring(soap));
+			retval = soap->error;
+			break;
+		}
+		else
+		{
+			printf("==== [ Media Stream Uri Response ] ====\n"
+				   "> MediaUri :\n\t%s\n", \
+				   media_GetStreamUriResponse.MediaUri->Uri);
+		}
+	}while(0);
+}
+

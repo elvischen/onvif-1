@@ -49,7 +49,9 @@ int main()
 {  
 
 
-	return ONVIF_Capabilities();
+	 ONVIF_Capabilities();
+	 ONVIF_GetProfiles();
+	 return ONVIF_GetStreamUri();
 /*
 	printf("[%s][%d][%s][%s] start \n", __FILE__, __LINE__, __TIME__, __func__);
  
