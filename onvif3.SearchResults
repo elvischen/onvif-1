@@ -1,0 +1,4 @@
+---- soap_s2byte Matches (3 in 2 files) ----
+Stdsoap2.c:soap_s2byte(struct soap *soap, const char *s, char *p)
+Stdsoap2.c:  { if (soap_s2byte(soap, soap_value(soap), p))
+Stdsoap2.h:SOAP_FMAC1 int SOAP_FMAC2 soap_s2byte(struct soap*, const char*, char*);

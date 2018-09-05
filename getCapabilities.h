@@ -1,0 +1,2 @@
+int ONVIF_Capabilities();
+
